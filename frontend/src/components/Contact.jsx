@@ -13,12 +13,20 @@ const Contact = ({ settings }) => {
     setLoading(true);
     setStatus(null);
     try {
-      await api.post('/contact', form);
+      console.log('Submitting contact form:', form);
+      const response = await api.post('/contact', form, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      });
+      console.log('Contact form response:', response.data);
       setStatus('success');
       setForm({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => setStatus(null), 5000);
     } catch (error) {
-      console.error(error);
+      console.error('Contact form error:', error);
+      console.error('Error response:', error.response?.data);
       setStatus('error');
     } finally {
       setLoading(false);

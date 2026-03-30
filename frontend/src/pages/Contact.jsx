@@ -24,13 +24,20 @@ const Contact = () => {
     setErrorMessage('');
 
     try {
-      // Assuming backend is running on port 8000
-      await axios.post('http://localhost:8000/api/contact', formData);
+      // Using the API service with proper error handling
+      const response = await axios.post('http://localhost:8000/api/contact', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      });
+      console.log('Contact form submitted successfully:', response.data);
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
+      console.error('Contact form submission error:', error);
       setStatus('error');
-      setErrorMessage(error.response?.data?.message || 'Something went wrong. Please try again.');
+      setErrorMessage(error.response?.data?.message || 'Failed to send message. Please try again.');
     }
   };
 

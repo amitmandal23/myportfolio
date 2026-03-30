@@ -8,10 +8,11 @@ const api = axios.create({
   },
 });
 
-// Interceptor for token
+// Interceptor for token - only add token if it exists and request is not for public endpoints
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
-  if (token) {
+  // Don't add auth header to public contact endpoint
+  if (token && config.url !== '/contact') {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

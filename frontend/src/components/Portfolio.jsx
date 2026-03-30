@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 
-const Portfolio = ({ projects }) => {
-  // Ensure we have enough items to scroll smoothly
-  const displayProjects = projects.length > 0 ? projects : [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ 
-    id: i, 
-    title: 'Project ' + i, 
-    image: null, 
-    category: 'Web' 
-  }));
+const Portfolio = ({ projects, galleryImages = [] }) => {
+  // Use gallery images from admin content if available, otherwise use projects
+  const displayItems = galleryImages.length > 0 
+    ? galleryImages.map((img, idx) => ({ id: `gallery-${idx}`, image: img }))
+    : (projects.length > 0 
+        ? projects 
+        : [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ 
+            id: i, 
+            title: 'Project ' + i, 
+            image: null, 
+            category: 'Web' 
+          })));
   
   // Create a large pool of items for the infinite effect
-  // We'll use different slices or shuffles for different rows if possible, 
-  // but for now, we just repeat the list enough times.
-  const marqueeItems = [...displayProjects, ...displayProjects, ...displayProjects];
+  const marqueeItems = [...displayItems, ...displayItems, ...displayItems];
 
   const Row = ({ direction = "left", speed = 30, offset = 0 }) => (
     <div className="flex overflow-hidden mb-6 relative z-0">
@@ -36,8 +38,8 @@ const Portfolio = ({ projects }) => {
           >
             {project.image ? (
               <img 
-                src={`http://localhost:8000${project.image}`} 
-                alt={project.title} 
+                src={project.image.startsWith('http') ? project.image : `http://localhost:8000${project.image}`} 
+                alt={`Portfolio ${index}`} 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (

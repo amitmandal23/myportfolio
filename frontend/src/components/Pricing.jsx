@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, PenTool, Globe, Gauge } from 'lucide-react';
+import LeadModal from './LeadModal';
 
 const Pricing = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState('');
   const plans = [
     {
       id: 1,
@@ -116,7 +119,13 @@ const Pricing = () => {
 
               {/* Enquire Button */}
               <div className="px-8 pb-10 text-center mt-auto">
-                 <button className="bg-[#6200ea] hover:bg-[#5000c0] text-white font-bold py-3 px-10 transition-colors uppercase text-sm tracking-wide">
+                 <button 
+                   onClick={() => {
+                     setSelectedService(plan.title);
+                     setModalOpen(true);
+                   }}
+                   className="bg-[#6200ea] hover:bg-[#5000c0] text-white font-bold py-3 px-10 transition-colors uppercase text-sm tracking-wide"
+                 >
                    Enquire Now
                  </button>
               </div>
@@ -124,6 +133,13 @@ const Pricing = () => {
           ))}
         </div>
       </div>
+
+      {/* Lead Inquiry Modal */}
+      <LeadModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        serviceName={selectedService}
+      />
     </section>
   );
 };

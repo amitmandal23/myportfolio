@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test - Portfolio</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        .container { max-width: 600px; margin: 0 auto; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; }
+        button { background: #6200ea; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #5000c0; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 5px; }
+        .success { background: #22c55d; }
+        .error { background: #ef4444; }
+        pre { background: #000; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Contact Form Submission</h1>
+        <p>This tests if forms can submit to the Laravel backend</p>
+        
+        <form id="testForm">
+            <input type="text" id="name" placeholder="Name" value="Test User" required>
+            <input type="email" id="email" placeholder="Email" value="test@example.com" required>
+            <input type="text" id="subject" placeholder="Subject" value="Test Lead Inquiry" required>
+            <textarea id="message" placeholder="Message" rows="5" required>This is a test message from the lead form.</textarea>
+            <button type="submit">Submit Test</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">Submitting...</div>';
+            
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+            
+            console.log('Submitting:', data);
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+                
+                const responseData = await response.json();
+                console.log('Response data:', responseData);
+                
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <h3>✅ Success!</h3>
+                        <p>Data submitted successfully:</p>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Error!</h3>
+                        <p>${error.message}</p>
+                        <p><strong>Check:</strong></p>
+                        <ul>
+                            <li>Is Laravel server running? (http://localhost:8000)</li>
+                            <li>Is the database configured correctly?</li>
+                            <li>Check browser console for more details</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

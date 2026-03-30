@@ -130,6 +130,67 @@ const AdminContent = () => {
         );
     }
 
+    if (type === 'image_array') {
+        // For gallery - multiple images
+        const images = Array.isArray(value) ? value : (value ? [value] : []);
+        
+        return (
+            <div className="mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+                    {images.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-32 object-cover rounded-lg border border-gray-600" />
+                            <button
+                                onClick={() => {
+                                    const newImages = images.filter((_, i) => i !== idx);
+                                    handleInputChange(section, key, newImages, 'image_array');
+                                }}
+                                className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <span className="text-xs">×</span>
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                <input 
+                    type="file" 
+                    accept="image/*"
+                    multiple
+                    onChange={async (e) => {
+                        const files = Array.from(e.target.files);
+                        if (files.length === 0) return;
+                        
+                        const uploadedImages = [...images];
+                        
+                        for (const file of files) {
+                            const formData = new FormData();
+                            formData.append('page', selectedPage);
+                            formData.append('section', section);
+                            formData.append('key', key);
+                            formData.append('value', file);
+                            formData.append('type', 'image');
+                            
+                            try {
+                                const response = await api.post('/content', formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                });
+                                uploadedImages.push(response.data.value);
+                            } catch (error) {
+                                console.error('Upload failed:', error);
+                            }
+                        }
+                        
+                        handleInputChange(section, key, uploadedImages, 'image_array');
+                        setMessage('Images uploaded successfully!');
+                        setTimeout(() => setMessage(''), 3000);
+                    }}
+                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                />
+                <p className="text-xs text-gray-500 mt-2">Select multiple images to add to gallery</p>
+            </div>
+        );
+    }
+
     if (type === 'image') {
         return (
             <div className="mb-4">
@@ -178,6 +239,9 @@ const AdminContent = () => {
           About: {
               content: { type: 'rich_text', value: '<p>About me content...</p>' },
               image: { type: 'image', value: '' }
+          },
+          PortfolioGallery: {
+              galleryImages: { type: 'image_array', value: [] }
           }
       };
       if (page === 'WebsiteDevelopment') return {
